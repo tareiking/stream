@@ -137,7 +137,7 @@ class Query {
 		 * Parse __in and __not_in queries.
 		 */
 		foreach ( $args as $key => $value ) {
-			$field = $this->key_to_field( $key );
+			$field = $this->key_to_in_field( $key );
 
 			if ( ! empty( $field ) ) {
 				$values_prepared = implode( ', ', $this->db_prepare_list( $value ) );
@@ -286,7 +286,7 @@ class Query {
 	 *
 	 * @return string|null
 	 */
-	protected function key_to_field( $key ) {
+	protected function key_to_in_field( $key ) {
 		if ( $this->key_is_in_lookup( $key ) || $this->key_is_not_in_lookup( $key ) ) {
 			$field = str_replace( array( 'record_', '__in', '__not_in' ), '', $key );
 
