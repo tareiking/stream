@@ -27,9 +27,8 @@ class DB_Driver_WPDB implements DB_Driver {
 	 * Class constructor.
 	 */
 	public function __construct() {
-		$this->query = new Query( $this );
-
 		global $wpdb;
+
 		$prefix = apply_filters( 'wp_stream_db_tables_prefix', $wpdb->base_prefix );
 
 		$this->table      = $prefix . 'stream';
@@ -40,6 +39,8 @@ class DB_Driver_WPDB implements DB_Driver {
 
 		// Hack for get_metadata
 		$wpdb->recordmeta = $this->table_meta;
+
+		$this->query = new Query( $wpdb );
 	}
 
 	/**

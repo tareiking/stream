@@ -26,11 +26,9 @@ class Query {
 	/**
 	 * Setup a query.
 	 */
-	public function __construct() {
-		global $wpdb;
-
+	public function __construct( $db ) {
 		// TODO: Switch all instances of $wpdb to $this->db;
-		$this->db = $wpdb;
+		$this->db = $db;
 
 		$this->lookup_fields = array(
 			'ID',
