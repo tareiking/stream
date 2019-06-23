@@ -54,8 +54,6 @@ class Query {
 	 * @return array Stream Records
 	 */
 	public function query( $args ) {
-		global $wpdb;
-
 		$join  = '';
 		$where = '';
 
