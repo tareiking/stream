@@ -63,23 +63,23 @@ class Query {
 		 * PARSE CORE PARAMS
 		 */
 		if ( is_numeric( $args['site_id'] ) ) {
-			$where .= $wpdb->prepare( " AND $wpdb->stream.site_id = %d", $args['site_id'] );
+			$where .= $this->db->prepare( " AND $this->db->stream.site_id = %d", $args['site_id'] );
 		}
 
 		if ( is_numeric( $args['blog_id'] ) ) {
-			$where .= $wpdb->prepare( " AND $wpdb->stream.blog_id = %d", $args['blog_id'] );
+			$where .= $this->db->prepare( " AND $this->db->stream.blog_id = %d", $args['blog_id'] );
 		}
 
 		if ( is_numeric( $args['object_id'] ) ) {
-			$where .= $wpdb->prepare( " AND $wpdb->stream.object_id = %d", $args['object_id'] );
+			$where .= $this->db->prepare( " AND $this->db->stream.object_id = %d", $args['object_id'] );
 		}
 
 		if ( is_numeric( $args['user_id'] ) ) {
-			$where .= $wpdb->prepare( " AND $wpdb->stream.user_id = %d", $args['user_id'] );
+			$where .= $this->db->prepare( " AND $this->db->stream.user_id = %d", $args['user_id'] );
 		}
 
 		if ( ! empty( $args['user_role'] ) ) {
-			$where .= $wpdb->prepare( " AND $wpdb->stream.user_role = %s", $args['user_role'] );
+			$where .= $this->db->prepare( " AND $this->db->stream.user_role = %s", $args['user_role'] );
 		}
 
 		if ( ! empty( $args['search'] ) ) {
@@ -87,24 +87,24 @@ class Query {
 			$field = $this->lookup_field_validated( $field );
 
 			if ( ! empty( $field ) ) {
-				$where .= $wpdb->prepare( " AND $wpdb->stream.{$field} LIKE %s", "%{$args['search']}%" ); // @codingStandardsIgnoreLine can't prepare column name
+				$where .= $this->db->prepare( " AND $this->db->stream.{$field} LIKE %s", "%{$args['search']}%" ); // @codingStandardsIgnoreLine can't prepare column name
 			}
 		}
 
 		if ( ! empty( $args['connector'] ) ) {
-			$where .= $wpdb->prepare( " AND $wpdb->stream.connector = %s", $args['connector'] );
+			$where .= $this->db->prepare( " AND $this->db->stream.connector = %s", $args['connector'] );
 		}
 
 		if ( ! empty( $args['context'] ) ) {
-			$where .= $wpdb->prepare( " AND $wpdb->stream.context = %s", $args['context'] );
+			$where .= $this->db->prepare( " AND $this->db->stream.context = %s", $args['context'] );
 		}
 
 		if ( ! empty( $args['action'] ) ) {
-			$where .= $wpdb->prepare( " AND $wpdb->stream.action = %s", $args['action'] );
+			$where .= $this->db->prepare( " AND $this->db->stream.action = %s", $args['action'] );
 		}
 
 		if ( ! empty( $args['ip'] ) ) {
-			$where .= $wpdb->prepare( " AND $wpdb->stream.ip = %s", wp_stream_filter_var( $args['ip'], FILTER_VALIDATE_IP ) );
+			$where .= $this->db->prepare( " AND $this->db->stream.ip = %s", wp_stream_filter_var( $args['ip'], FILTER_VALIDATE_IP ) );
 		}
 
 		/**
@@ -117,22 +117,22 @@ class Query {
 
 		if ( ! empty( $args['date_from'] ) ) {
 			$date   = get_gmt_from_date( date( 'Y-m-d H:i:s', strtotime( $args['date_from'] . ' 00:00:00' ) ) );
-			$where .= $wpdb->prepare( " AND DATE($wpdb->stream.created) >= %s", $date );
+			$where .= $this->db->prepare( " AND DATE($this->db->stream.created) >= %s", $date );
 		}
 
 		if ( ! empty( $args['date_to'] ) ) {
 			$date   = get_gmt_from_date( date( 'Y-m-d H:i:s', strtotime( $args['date_to'] . ' 23:59:59' ) ) );
-			$where .= $wpdb->prepare( " AND DATE($wpdb->stream.created) <= %s", $date );
+			$where .= $this->db->prepare( " AND DATE($this->db->stream.created) <= %s", $date );
 		}
 
 		if ( ! empty( $args['date_after'] ) ) {
 			$date   = get_gmt_from_date( date( 'Y-m-d H:i:s', strtotime( $args['date_after'] ) ) );
-			$where .= $wpdb->prepare( " AND DATE($wpdb->stream.created) > %s", $date );
+			$where .= $this->db->prepare( " AND DATE($this->db->stream.created) > %s", $date );
 		}
 
 		if ( ! empty( $args['date_before'] ) ) {
 			$date   = get_gmt_from_date( date( 'Y-m-d H:i:s', strtotime( $args['date_before'] ) ) );
-			$where .= $wpdb->prepare( " AND DATE($wpdb->stream.created) < %s", $date );
+			$where .= $this->db->prepare( " AND DATE($this->db->stream.created) < %s", $date );
 		}
 
 		/**
@@ -145,9 +145,9 @@ class Query {
 				$values_prepared = implode( ', ', $this->db_prepare_list( $value ) );
 
 				if ( $this->key_is_in_lookup( $key ) ) {
-					$where .= sprintf( " AND $wpdb->stream.%s IN (%s)", $field, $values_prepared );
+					$where .= sprintf( " AND $this->db->stream.%s IN (%s)", $field, $values_prepared );
 				} elseif ( $this->key_is_in_not_lookup( $key ) ) {
-					$where .= sprintf( " AND $wpdb->stream.%s NOT IN (%s)", $field, $values_prepared );
+					$where .= sprintf( " AND $this->db->stream.%s NOT IN (%s)", $field, $values_prepared );
 				}
 			}
 		}
@@ -172,13 +172,13 @@ class Query {
 		$orderable = array( 'ID', 'site_id', 'blog_id', 'object_id', 'user_id', 'user_role', 'summary', 'created', 'connector', 'context', 'action' );
 
 		if ( in_array( $orderby, $orderable, true ) ) {
-			$orderby = sprintf( '%s.%s', $wpdb->stream, $orderby );
+			$orderby = sprintf( '%s.%s', $this->db->stream, $orderby );
 		} elseif ( 'meta_value_num' === $orderby && ! empty( $args['meta_key'] ) ) {
-			$orderby = "CAST($wpdb->streammeta.meta_value AS SIGNED)";
+			$orderby = "CAST($this->db->streammeta.meta_value AS SIGNED)";
 		} elseif ( 'meta_value' === $orderby && ! empty( $args['meta_key'] ) ) {
-			$orderby = "$wpdb->streammeta.meta_value";
+			$orderby = "$this->db->streammeta.meta_value";
 		} else {
-			$orderby = "$wpdb->stream.ID";
+			$orderby = "$this->db->stream.ID";
 		}
 
 		$orderby = "ORDER BY {$orderby} {$order}";
@@ -196,10 +196,10 @@ class Query {
 					continue;
 				}
 
-				$selects[] = sprintf( "$wpdb->stream.%s", $field );
+				$selects[] = sprintf( "$this->db->stream.%s", $field );
 			}
 		} else {
-			$selects[] = "$wpdb->stream.*";
+			$selects[] = "$this->db->stream.*";
 		}
 
 		$select = implode( ', ', $selects );
@@ -208,7 +208,7 @@ class Query {
 		 * BUILD THE FINAL QUERY
 		 */
 		$query = "SELECT SQL_CALC_FOUND_ROWS {$select}
-		FROM $wpdb->stream
+		FROM $this->db->stream
 		{$join}
 		WHERE 1=1 {$where}
 		{$orderby}
@@ -228,8 +228,8 @@ class Query {
 		/**
 		 * QUERY THE DATABASE FOR RESULTS
 		 */
-		$result['items'] = $wpdb->get_results( $query ); // @codingStandardsIgnoreLine $query already prepared
-		$result['count'] = $result['items'] ? absint( $wpdb->get_var( 'SELECT FOUND_ROWS()' ) ) : 0;
+		$result['items'] = $this->db->get_results( $query ); // @codingStandardsIgnoreLine $query already prepared
+		$result['count'] = $result['items'] ? absint( $this->db->get_var( 'SELECT FOUND_ROWS()' ) ) : 0;
 
 		return $result;
 	}
